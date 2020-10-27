@@ -1,6 +1,8 @@
 package lookandsay;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A look-and-say sequence is a sequence of numbers. Given the current number, the next number
@@ -110,20 +112,60 @@ public class LookAndSayIterator implements RIterator {
     return result.toString();
   }
 
+  /**
+  * This is a recursively defined sequence of numbers as noted in the parent
+  * class definition.  This generates the previous number in the sequence. For example,
+  * given "1211" it would return "21"
+  *
+  * @param number The number used to generate the previous number.
+  * @return The previous number in the sequence.
+  */
+  private String generateNumberReverse(String number) {
+
+    if (number.length() % 2 != 0) {
+      throw new IllegalStateException("Only an even number of digits can be reversed.");
+    }
+
+    // Break the number into a list of individual strings.
+    List<String> numberSequence = Arrays.asList(number.split(""));
+
+    StringBuilder result = new StringBuilder();
+
+    for (int j = 0; j < numberSequence.size(); j += 2) {
+      int howManyOfThisDigit = Integer.parseInt(numberSequence.get(j));
+      String theDigit = numberSequence.get(j + 1);
+
+      for (int k = 0; k < howManyOfThisDigit; k++) {
+        result.append(theDigit);
+      }
+    }
+
+    return result.toString();
+  }
+
   @Override
-  public LookAndSayIterator next() {
+  public BigInteger next() {
     // We are moving to the next number, so set this current number as the new previous.
     this.previousNumber = this.currentNumber;
 
     // Get the next number in the sequence and this becomes the new current.
     this.currentNumber = generateNumber(currentNumber);
 
-    return this;
+    return new BigInteger(this.previousNumber);
   }
 
   @Override
-  public LookAndSayIterator prev() {
-    return null;
+  public BigInteger prev() {
+    // If next has been called, then we have a previous number.  Use that as the basis for getting
+    // the number before that.
+    if (this.previousNumber != null) {
+      this.currentNumber = this.previousNumber;
+      this.previousNumber = generateNumberReverse(this.previousNumber);
+    } else {
+      this.previousNumber = generateNumberReverse(this.currentNumber);
+    }
+
+    return new BigInteger(this.previousNumber);
   }
 
   @Override

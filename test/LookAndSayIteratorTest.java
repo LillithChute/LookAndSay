@@ -80,16 +80,22 @@ public class LookAndSayIteratorTest {
   // region Tests for next.
   @Test
   public void nextTest() {
-    // Start with a seed of one.  It should return 11.
-    assertEquals("11", new LookAndSayIterator().next().getCurrentNumber());
+    // Start with a seed of one.  It should return 1 and move to the next number.
+    lookAndSay = new LookAndSayIterator();
 
-    // Start with a seed of "21".  This should return a next of "1211"
-    assertEquals("1211", new LookAndSayIterator(new BigInteger("21")).next().getCurrentNumber());
+    assertEquals("1", lookAndSay.next().toString());
+    assertEquals("11", lookAndSay.next().toString());
+
+    // Start with a seed of "21".  Next would return 21 and move to the next.
+    // Next again should return a next of "1211"
+    lookAndSay = new LookAndSayIterator(new BigInteger("21"));
+    lookAndSay.next();
+    assertEquals("1211", lookAndSay.next().toString());
   }
 
   private RIterator iterateNumberOfTimes(RIterator newValue, int numberOfTimes) {
     for (int i = 0; i < numberOfTimes; i++) {
-      newValue = (RIterator) newValue.next();
+      newValue.next();
     }
 
     return newValue;
@@ -137,4 +143,16 @@ public class LookAndSayIteratorTest {
     assertEquals(false, iterator.hasNext());
   }
   // endregion
+
+  // region Tests for prev()
+  @Test
+  public void prevTest() {
+    lookAndSay = new LookAndSayIterator(new BigInteger("21"));
+    assertEquals("11", lookAndSay.prev().toString());
+
+    lookAndSay = new LookAndSayIterator(new BigInteger("13112221"));
+    lookAndSay.prev();
+    lookAndSay.prev();
+    assertEquals("1211", lookAndSay.prev().toString());
+  }
 }

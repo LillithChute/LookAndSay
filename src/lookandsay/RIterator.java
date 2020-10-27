@@ -17,7 +17,7 @@ public interface RIterator<T> extends Iterator<T> {
   String getCurrentNumber();
 
   /**
-   * This will advance and return the next element.
+   * This will return the current number and advance to the next element.
    *
    * @return The next element.
    */
