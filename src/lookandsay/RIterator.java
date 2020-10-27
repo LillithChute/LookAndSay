@@ -10,6 +10,13 @@ import java.util.Iterator;
 public interface RIterator<T> extends Iterator<T> {
 
   /**
+   * This will return the next element as a string.
+   *
+   * @return The next element as a string.
+   */
+  String getCurrentNumber();
+
+  /**
    * This will advance and return the next element.
    *
    * @return The next element.

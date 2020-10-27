@@ -10,12 +10,18 @@ import java.math.BigInteger;
  */
 public class LookAndSayIterator implements RIterator {
 
+  // Constructor variables.
   private BigInteger seed;
   private BigInteger end = new BigInteger("99999999999999999999999999999999999999999999999999"
           + "99999999999999999999999999999999999999999999999999");
 
+  // Look and say variables.
+  private String currentNumber;
+  private String nextNumber;
+  private String previousNumber;
+
   /**
-   * This creates an instance of the LookAndSee class.
+   * This creates an instance of the LookAndSay class.
    *
    * @param seedValue The number at which the sequence must begin.
    * @param endValue The number at which the sequence should stop when reached.
@@ -26,10 +32,11 @@ public class LookAndSayIterator implements RIterator {
 
     this.seed = seedValue;
     this.end = endValue;
+    this.currentNumber = seed.toString();
   }
 
   /**
-   * This creates an instance of the LookAndSee class.
+   * This creates an instance of the LookAndSay class.
    *
    * @param seedValue The number at which the sequence must begin.
    */
@@ -38,13 +45,15 @@ public class LookAndSayIterator implements RIterator {
     validateSeedValue(seedValue, this.end);
 
     this.seed = seedValue;
+    this.currentNumber = seed.toString();
   }
 
   /**
-   * This creates an instance of the LookAndSee class.
+   * This creates an instance of the LookAndSay class.
    */
   public LookAndSayIterator() {
     this.seed = new BigInteger("1");
+    this.currentNumber = seed.toString();
   }
 
   /**
@@ -72,19 +81,61 @@ public class LookAndSayIterator implements RIterator {
     }
   }
 
-  @Override
-  public Object next() {
-    return null;
+  /**
+   * This is a recursively defined sequence of numbers as noted in the parent
+   * class definition.  This generates the actual number.
+   *
+   * @param number The number used to generate the next number.
+   * @return The next number in the sequence.
+   */
+  private static String generateNumber(String number) {
+    StringBuilder result = new StringBuilder();
+
+    char repeat = number.charAt(0);
+    number = number.substring(1) + " ";
+    int times = 1;
+
+    for (char actual : number.toCharArray()) {
+
+      if (actual != repeat) {
+        result.append(times + "" + repeat);
+        times = 1;
+        repeat = actual;
+      } else {
+        times += 1;
+      }
+
+    }
+
+    return result.toString();
   }
 
   @Override
-  public Object prev() {
+  public LookAndSayIterator next() {
+    // We are moving to the next number, so set this current number as the new previous.
+    this.previousNumber = this.currentNumber;
+
+    // Get the next number in the sequence and this becomes the new current.
+    this.currentNumber = generateNumber(currentNumber);
+
+    return this;
+  }
+
+  @Override
+  public LookAndSayIterator prev() {
     return null;
   }
 
   @Override
   public boolean hasNext() {
-    return false;
+    // Get what the next value would be
+    BigInteger nextValue = new BigInteger(generateNumber(this.currentNumber));
+
+    if (nextValue.compareTo(this.end) == 1) {
+      return false;
+    }
+
+    return true;
   }
 
   @Override
@@ -93,7 +144,19 @@ public class LookAndSayIterator implements RIterator {
   }
 
   @Override
+  public String getCurrentNumber() {
+    return this.currentNumber;
+  }
+
+  @Override
   public String toString() {
-    return super.toString();
+    StringBuilder values = new StringBuilder();
+
+    return values.append("seed: ")
+            .append(seed.toString())
+            .append("  ")
+            .append("end: ")
+            .append(end.toString())
+            .toString();
   }
 }
