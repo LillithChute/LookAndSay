@@ -149,10 +149,61 @@ public class LookAndSayIteratorTest {
   public void prevTest() {
     lookAndSay = new LookAndSayIterator(new BigInteger("21"));
     assertEquals("11", lookAndSay.prev().toString());
+  }
 
+  @Test
+  public void prevMultipleTest() {
+    // Multiple iteration.
     lookAndSay = new LookAndSayIterator(new BigInteger("13112221"));
     lookAndSay.prev();
     lookAndSay.prev();
     assertEquals("1211", lookAndSay.prev().toString());
   }
+  // endregion
+
+  // region Mixed use of next and prev test.
+  @Test
+  public void nextAndPrevMixedTest() {
+    lookAndSay = new LookAndSayIterator(new BigInteger("13112221"));
+    lookAndSay.prev();
+    lookAndSay.prev();
+    lookAndSay.prev();
+    assertEquals("21", lookAndSay.prev().toString());
+    lookAndSay.next();
+    lookAndSay.next();
+    assertEquals("312211", lookAndSay.next().toString());
+  }
+  // endregion
+
+  // region Test hasPrevious() method
+  @Test
+  public void hasPreviousTrueTest() {
+    // Start with a seed of 21 with an end of 100 9's.
+    assertEquals(true, new LookAndSayIterator(new BigInteger("21")).hasPrevious());
+
+    // Start with a seed of "21".
+    RIterator iterator = new LookAndSayIterator(new BigInteger("21"), new BigInteger("2222"));
+
+    assertEquals("11", iterator.prev().toString());
+    assertEquals(true, iterator.hasPrevious());
+  }
+
+  @Test
+  public void hasPrevFalseTest() {
+    // Start with a seed of "1".
+    RIterator iterator = new LookAndSayIterator();
+    assertEquals("1", iterator.getCurrentNumber());
+    assertEquals(false, iterator.hasPrevious());
+
+    // Iterate once more and then it should NOT have a next number
+    iterator = new LookAndSayIterator(new BigInteger("21"));
+
+    assertEquals("21", iterator.getCurrentNumber());
+    assertEquals(true, iterator.hasPrevious());
+    iterator.prev();
+    assertEquals(true, iterator.hasPrevious());
+    iterator.prev();
+    assertEquals(false, iterator.hasPrevious());
+  }
+  // endregion
 }

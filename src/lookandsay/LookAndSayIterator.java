@@ -10,17 +10,16 @@ import java.util.List;
  * the current number is "1", then we read that as "one 1" and thus the next number in the
  * sequence will be "11".
  */
-public class LookAndSayIterator implements RIterator {
+public class LookAndSayIterator implements RIterator<BigInteger> {
 
   // Constructor variables.
-  private BigInteger seed;
-  private BigInteger end = new BigInteger("99999999999999999999999999999999999999999999999999"
-          + "99999999999999999999999999999999999999999999999999");
+  private final BigInteger seed;
+  private final BigInteger end;
 
   // Look and say variables.
   private String currentNumber;
-  private String nextNumber;
   private String previousNumber;
+  private static final BigInteger LOWEST_VALUE_FOR_POSSIBLE_HASPREV = new BigInteger("11");
 
   /**
    * This creates an instance of the LookAndSay class.
@@ -43,19 +42,14 @@ public class LookAndSayIterator implements RIterator {
    * @param seedValue The number at which the sequence must begin.
    */
   public LookAndSayIterator(BigInteger seedValue) {
-
-    validateSeedValue(seedValue, this.end);
-
-    this.seed = seedValue;
-    this.currentNumber = seed.toString();
+    this(seedValue, new BigInteger("9".repeat(100)));
   }
 
   /**
    * This creates an instance of the LookAndSay class.
    */
   public LookAndSayIterator() {
-    this.seed = new BigInteger("1");
-    this.currentNumber = seed.toString();
+    this(new BigInteger("1"), new BigInteger("9".repeat(100)));
   }
 
   /**
@@ -123,7 +117,9 @@ public class LookAndSayIterator implements RIterator {
   private String generateNumberReverse(String number) {
 
     if (number.length() % 2 != 0) {
-      throw new IllegalStateException("Only an even number of digits can be reversed.");
+      // Only an even number of digits can be reversed.  So, return 1 which will indicate that
+      // there is no previous.
+      return "1";
     }
 
     // Break the number into a list of individual strings.
@@ -173,6 +169,8 @@ public class LookAndSayIterator implements RIterator {
     // Get what the next value would be
     BigInteger nextValue = new BigInteger(generateNumber(this.currentNumber));
 
+    // 11 is the last number that should have a previous.  Anything less than that means we are
+    // done.
     if (nextValue.compareTo(this.end) == 1) {
       return false;
     }
@@ -182,7 +180,14 @@ public class LookAndSayIterator implements RIterator {
 
   @Override
   public boolean hasPrevious() {
-    return false;
+    // Get what the next value would be
+    BigInteger prevValue = new BigInteger(generateNumberReverse(this.currentNumber));
+
+    if (prevValue.compareTo(LOWEST_VALUE_FOR_POSSIBLE_HASPREV) == -1) {
+      return false;
+    }
+
+    return true;
   }
 
   @Override
