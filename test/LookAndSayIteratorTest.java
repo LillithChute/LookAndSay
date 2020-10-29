@@ -90,6 +90,7 @@ public class LookAndSayIteratorTest {
     // Next again should return a next of "1211"
     lookAndSay = new LookAndSayIterator(new BigInteger("21"));
     lookAndSay.next();
+    assertEquals("21", lookAndSay.getCurrentNumber());
     assertEquals("1211", lookAndSay.next().toString());
   }
 
@@ -108,7 +109,7 @@ public class LookAndSayIteratorTest {
 
     newValue = iterateNumberOfTimes(newValue, 4);
 
-    assertEquals("111221", newValue.getCurrentNumber());
+    assertEquals("1211", newValue.getCurrentNumber());
   }
 
   // endregion
@@ -121,7 +122,7 @@ public class LookAndSayIteratorTest {
 
     // Start with a seed of "21".  This should return a next of "1211"
     RIterator iterator = new LookAndSayIterator(new BigInteger("1"), new BigInteger("2222"));
-    iterator = iterateNumberOfTimes(iterator, 2);
+    iterator = iterateNumberOfTimes(iterator, 3);
 
     assertEquals("21", iterator.getCurrentNumber());
     assertEquals(true, iterator.hasNext());
@@ -131,7 +132,7 @@ public class LookAndSayIteratorTest {
   public void hasNextFalseTest() {
     // Start with a seed of "21".  This should return a next of "1211"
     RIterator iterator = new LookAndSayIterator(new BigInteger("1"), new BigInteger("2222"));
-    iterator = iterateNumberOfTimes(iterator, 2);
+    iterator = iterateNumberOfTimes(iterator, 3);
 
     assertEquals("21", iterator.getCurrentNumber());
     assertEquals(true, iterator.hasNext());
@@ -140,6 +141,7 @@ public class LookAndSayIteratorTest {
     iterator = iterateNumberOfTimes(iterator, 1);
 
     assertEquals("1211", iterator.getCurrentNumber());
+    iterator.next();
     assertEquals(false, iterator.hasNext());
   }
   // endregion
@@ -149,6 +151,18 @@ public class LookAndSayIteratorTest {
   public void prevTest() {
     lookAndSay = new LookAndSayIterator(new BigInteger("21"));
     assertEquals("11", lookAndSay.prev().toString());
+
+    lookAndSay = new LookAndSayIterator(new BigInteger("31121113"));
+    assertEquals("31121113", lookAndSay.getCurrentNumber());
+    lookAndSay.next();
+    assertEquals("31121113", lookAndSay.getCurrentNumber());
+    assertEquals("111213", lookAndSay.prev().toString());
+  }
+
+  @Test
+  public void prevEmptyConstructorTest() {
+    lookAndSay = new LookAndSayIterator();
+    assertEquals("1", lookAndSay.next().toString());
   }
 
   @Test
@@ -164,28 +178,46 @@ public class LookAndSayIteratorTest {
   // region Mixed use of next and prev test.
   @Test
   public void nextAndPrevMixedTest() {
+    lookAndSay = new LookAndSayIterator(new BigInteger("123"));
+    assertEquals("123", lookAndSay.next().toString());
+    assertEquals("111213", lookAndSay.next().toString());
+    assertEquals("31121113", lookAndSay.next().toString());
+    assertEquals("111213", lookAndSay.prev().toString());
+    assertEquals("123", lookAndSay.prev().toString());
+
     lookAndSay = new LookAndSayIterator(new BigInteger("13112221"));
     lookAndSay.prev();
     lookAndSay.prev();
     lookAndSay.prev();
     assertEquals("21", lookAndSay.prev().toString());
-    lookAndSay.next();
-    lookAndSay.next();
+    assertEquals("21", lookAndSay.next().toString());
+    assertEquals("1211", lookAndSay.next().toString());
+    assertEquals("111221", lookAndSay.next().toString());
     assertEquals("312211", lookAndSay.next().toString());
+
+    lookAndSay = new LookAndSayIterator(new BigInteger("21"));
+    lookAndSay.prev();
+    assertEquals("1", lookAndSay.prev().toString());
   }
   // endregion
 
   // region Test hasPrevious() method
   @Test
   public void hasPreviousTrueTest() {
-    // Start with a seed of 21 with an end of 100 9's.
+    // Check the "go behind" seed can happen
+    lookAndSay = new LookAndSayIterator(new BigInteger("1234"));
+    assertEquals(true, lookAndSay.hasPrevious());
+    lookAndSay.prev();
+    assertEquals(true, lookAndSay.hasPrevious());
+
+    // Start with a seed of 21 with an end of 100 9's.  Check for previous.
     assertEquals(true, new LookAndSayIterator(new BigInteger("21")).hasPrevious());
 
     // Start with a seed of "21".
-    RIterator iterator = new LookAndSayIterator(new BigInteger("21"), new BigInteger("2222"));
+    lookAndSay = new LookAndSayIterator(new BigInteger("21"));
 
-    assertEquals("11", iterator.prev().toString());
-    assertEquals(true, iterator.hasPrevious());
+    assertEquals("11", lookAndSay.prev().toString());
+    assertEquals(true, lookAndSay.hasPrevious());
   }
 
   @Test
@@ -196,14 +228,12 @@ public class LookAndSayIteratorTest {
     assertEquals(false, iterator.hasPrevious());
 
     // Iterate once more and then it should NOT have a next number
-    iterator = new LookAndSayIterator(new BigInteger("21"));
+    lookAndSay = new LookAndSayIterator(new BigInteger("21"));
 
-    assertEquals("21", iterator.getCurrentNumber());
-    assertEquals(true, iterator.hasPrevious());
-    iterator.prev();
-    assertEquals(true, iterator.hasPrevious());
-    iterator.prev();
-    assertEquals(false, iterator.hasPrevious());
+    assertEquals("11", lookAndSay.prev().toString());
+    assertEquals(true, lookAndSay.hasPrevious());
+    lookAndSay.prev();
+    assertEquals(false, lookAndSay.hasPrevious());
   }
   // endregion
 }

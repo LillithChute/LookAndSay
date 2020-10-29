@@ -1,6 +1,7 @@
 package lookandsay;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,8 +19,11 @@ public class LookAndSayIterator implements RIterator<BigInteger> {
 
   // Look and say variables.
   private String currentNumber;
+  private String advanceNumber;
   private String previousNumber;
-  private static final BigInteger LOWEST_VALUE_FOR_POSSIBLE_HASPREV = new BigInteger("11");
+  private static final BigInteger LOWEST_VALUE_FOR_POSSIBLE_HASPREV = new BigInteger("0");
+  private static final List<String> invalidNumbers = new ArrayList<>(
+          Arrays.asList("0", "2", "3", "4", "5", "6", "7", "8", "9", "10"));
 
   /**
    * This creates an instance of the LookAndSay class.
@@ -116,10 +120,10 @@ public class LookAndSayIterator implements RIterator<BigInteger> {
   */
   private String generateNumberReverse(String number) {
 
-    if (number.length() % 2 != 0) {
+    if (number.length() % 2 != 0 || invalidNumbers.contains(number)) {
       // Only an even number of digits can be reversed.  So, return 1 which will indicate that
       // there is no previous.
-      return "1";
+      return "0";
     }
 
     // Break the number into a list of individual strings.
@@ -142,26 +146,31 @@ public class LookAndSayIterator implements RIterator<BigInteger> {
   @Override
   public BigInteger next() {
     // We are moving to the next number, so set this current number as the new previous.
-    this.previousNumber = this.currentNumber;
+    if (this.previousNumber == null) {
+      this.previousNumber = this.seed.toString();
+    } else if (this.advanceNumber == null) {
+      // Advance all the numbers
+      this.previousNumber = this.currentNumber;
+    } else {
+      // Advance all the numbers
+      this.previousNumber = this.currentNumber;
+      this.currentNumber = this.advanceNumber;
+    }
 
     // Get the next number in the sequence and this becomes the new current.
-    this.currentNumber = generateNumber(currentNumber);
+    this.advanceNumber = generateNumber(currentNumber);
 
-    return new BigInteger(this.previousNumber);
+    return new BigInteger(this.currentNumber);
   }
 
   @Override
   public BigInteger prev() {
     // If next has been called, then we have a previous number.  Use that as the basis for getting
     // the number before that.
-    if (this.previousNumber != null) {
-      this.currentNumber = this.previousNumber;
-      this.previousNumber = generateNumberReverse(this.previousNumber);
-    } else {
-      this.previousNumber = generateNumberReverse(this.currentNumber);
-    }
+    this.previousNumber = generateNumberReverse(this.currentNumber);
+    this.currentNumber = this.previousNumber;
 
-    return new BigInteger(this.previousNumber);
+    return new BigInteger(this.currentNumber);
   }
 
   @Override
@@ -169,13 +178,7 @@ public class LookAndSayIterator implements RIterator<BigInteger> {
     // Get what the next value would be
     BigInteger nextValue = new BigInteger(generateNumber(this.currentNumber));
 
-    // 11 is the last number that should have a previous.  Anything less than that means we are
-    // done.
-    if (nextValue.compareTo(this.end) == 1) {
-      return false;
-    }
-
-    return true;
+    return new BigInteger(currentNumber).compareTo(this.end) != 1;
   }
 
   @Override
@@ -183,11 +186,8 @@ public class LookAndSayIterator implements RIterator<BigInteger> {
     // Get what the next value would be
     BigInteger prevValue = new BigInteger(generateNumberReverse(this.currentNumber));
 
-    if (prevValue.compareTo(LOWEST_VALUE_FOR_POSSIBLE_HASPREV) == -1) {
-      return false;
-    }
-
-    return true;
+    // A zero prevValue means there is likely no previous value
+    return !prevValue.toString().equals("0");
   }
 
   @Override

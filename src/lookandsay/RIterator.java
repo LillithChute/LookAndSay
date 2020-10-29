@@ -24,8 +24,8 @@ public interface RIterator<T> extends Iterator<T> {
   T next();
 
   /**
-   * This method returns the current number in the sequence and reverts to the
-   * previous number in the sequence.
+   * This will return the current number in the sequence and reverts to the previous number
+   * in the sequence.
    *
    * @return The current number in the sequence.
    */
